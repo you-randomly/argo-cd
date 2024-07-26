@@ -6,7 +6,8 @@
     "kubectl@latest",
     "k9s@latest",
     "hubble@latest",
-    "cilium-cli@latest"
+    "cilium-cli@latest",
+    "lazygit@latest"
   ],
   "shell": {
     "init_hook": [
