@@ -13,3 +13,40 @@ spec:
   - secretKey: cf-cert-manager
     remoteRef:
       key: "19a22689-3417-4de4-9406-b1ea011195b7"
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    email: jakewato@hotmail.co.uk
+    server: https://acme-v02.api.letsencrypt.org/directory
+    # use staging for testing
+    #server: https://acme-staging-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: letsencrypt-prod
+    solvers:
+    - dns01:
+        cloudflare:
+          email: jakewato@hotmail.co.uk
+          apiTokenSecretRef:
+            name: cf-cert-manager
+            key: cf-cert-manager
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: jake-watson-co-uk
+  namespace: default
+spec:
+  secretName: jake-watson-co-uk-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  commonName: "*.jake-watson.co.uk"
+  dnsNames:
+    - "*.jake-watson.co.uk"
+    - "jake-watson.co.uk"
+    - "*.lab.jake-watson.co.uk"
+
