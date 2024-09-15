@@ -1,0 +1,15 @@
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: cf-cert-manager
+  namespace: cert-manager
+spec:
+  refreshInterval: 10s
+  secretStoreRef:
+    # This name must match the metadata.name in the `SecretStore`
+    name: bitwarden-secretsmanager
+    kind: ClusterSecretStore
+  data:
+  - secretKey: cf-cert-manager
+    remoteRef:
+      key: "19a22689-3417-4de4-9406-b1ea011195b7"

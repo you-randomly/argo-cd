@@ -37,7 +37,21 @@ gatewayAPI:
   enabled: true
 
 hubble:
+  enabled: true
+  metrics:
+    enabled:
+      - dns:query
+      - drop
+      - tcp
+      - flow
+      - port-distribution
+      - icmp
+      - http
   relay:
     enabled: true
+    rollOutPods: true
   ui:
     enabled: true
+    rollOutPods: true
+    ingress:
+      enabled: false
