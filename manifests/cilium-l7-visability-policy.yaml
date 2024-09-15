@@ -1,0 +1,24 @@
+apiVersion: "cilium.io/v2"
+kind: CiliumNetworkPolicy
+metadata:
+  name: "l7-visibility"
+spec:
+  endpointSelector:
+    matchLabels:
+      "k8s:io.kubernetes.pod.namespace": argocd
+  egress:
+  - toPorts:
+    - ports:
+      - port: "443"
+        protocol: TCP
+      rules:
+        dns:
+        - matchPattern: "*"
+  ingress:
+  - toPorts:
+    - ports:
+      - port: "443"
+        protocol: TCP
+      rules:
+        dns:
+        - matchPattern: "*"
