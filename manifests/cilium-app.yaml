@@ -5,14 +5,17 @@ metadata:
     namespace: argocd
 spec:
     project: default
-    source:
-        chart: cilium
-        repoURL: https://helm.cilium.io/
-        targetRevision: 1.10.4
-        helm:
-            releaseName: cilium
-            valueFiles:
-                - values/cilium-values.yaml
+    sources:
+    - chart: cilium
+      repoURL: https://helm.cilium.io/
+      targetRevision: 1.10.4
+      helm:
+        releaseName: cilium
+        valueFiles:
+            - $values/values/cilium-values.yaml
+    - repoURL: https://github.com/you-randomly/argo-cd.git
+      targetRevision: HEAD
+      ref: values
     destination:
         server: "https://kubernetes.default.svc"
         namespace: kube-system
