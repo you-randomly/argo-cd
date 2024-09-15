@@ -3,9 +3,6 @@ kind: CiliumNetworkPolicy
 metadata:
   name: "l7-visibility"
 spec:
-  endpointSelector:
-    matchLabels:
-      "k8s:io.kubernetes.pod.namespace": argocd
   egress:
   - toPorts:
     - ports:
