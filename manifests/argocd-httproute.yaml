@@ -14,7 +14,7 @@ spec:
   rules:
    - backendRefs:
      - kind: Service
-       name: argo-cd-argocd-server
+       name: argocd-server
        port: 80
      matches:
      - path:
