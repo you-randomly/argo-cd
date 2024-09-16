@@ -5,7 +5,7 @@ metadata:
 spec:
   endpointSelector:
     matchLabels:
-      "k8s:io.kubernetes.pod.namespace": "*"
+      "app.kubernetes.io/instance": "argocd"
   egress:
   - toPorts:
     - ports:
