@@ -42,7 +42,7 @@ spec:
        - longhorn.lab.jake-watson.co.uk
        parentRefs:
        - name: cilium-gateway
-       namespace: default
+         namespace: default
        rules:
        - backendRefs:
               - name: longhorn-frontend
