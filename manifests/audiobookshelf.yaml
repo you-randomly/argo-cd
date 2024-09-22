@@ -4,7 +4,6 @@ metadata:
   name: audiobookshelf
 ---
 apiVersion: v1
-kind: apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: audiobookshelf
