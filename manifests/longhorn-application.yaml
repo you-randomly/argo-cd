@@ -61,18 +61,6 @@ parameters:
   fromBackup: ""
   fsType: "ext4"
 ---
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: longhorn-volv-pvc
-spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: longhorn
-  resources:
-    requests:
-      storage: 2Gi
----
 apiVersion: longhorn.io/v1beta1
 kind: RecurringJob
 metadata:
