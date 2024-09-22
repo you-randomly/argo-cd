@@ -17,14 +17,14 @@ spec:
           k8sState:
             persistence:
               enabled: true
-              storageClass: longhorn-talos
+              storageclass: longhorn-talos
               volumesize: 3Gi
           parent:
             database:
-              storageClass: longhorn-talos
+              storageclass: longhorn-talos
               volumesize: 5Gi
             alarms:
-              storageClass: longhorn-talos
+              storageclass: longhorn-talos
               volumesize: 3Gi
 
   destination:
