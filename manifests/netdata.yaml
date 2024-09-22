@@ -22,7 +22,7 @@ spec:
           parent:
             database:
               storageClass: longhorn-talos
-              volumesize: 3Gi
+              volumesize: 5Gi
             alarms:
               storageClass: longhorn-talos
               volumesize: 3Gi
