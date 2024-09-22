@@ -1,0 +1,46 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: netdata
+  namespace: argocd
+spec:
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+  project: default
+  sources:
+    - chart: netdata
+      repoURL: https://netdata.github.io/helmchart/
+      targetRevision: "3.7.101"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: netdata
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: netdata
+  namespace: netdata
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: longhorn-talos
+---
+kind: HTTPRoute
+apiVersion: gateway.networking.k8s.io/v1beta1
+metadata:
+  name: ui-netdata
+  namespace: netdata
+spec:
+  hostnames:
+    - netdata.lab.jake-watson.co.uk
+  parentRefs:
+    - name: cilium-gateway
+      namespace: default
+  rules:
+    - backendRefs:
+        - name: netdata
+          port: 19999
