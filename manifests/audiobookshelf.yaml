@@ -53,19 +53,13 @@ spec:
         - containerPort:  80
           name: audiobookshelf
         volumeMounts:
-        - name: config
-          mountPath: /config
         - name: config-new
-          mountPath: /config-new
+          mountPath: /config
         - name: metadata
           mountPath: /metadata
         - name: audiobooks
           mountPath: /audiobooks
       volumes:
-        - name: config
-          nfs:
-            server: "192.168.200.184"
-            path: "/volume1/Nomad/audiobookshelf"
         - name: metadata
           nfs:
             server: "192.168.200.184"
