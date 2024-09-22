@@ -26,6 +26,8 @@ spec:
       targetRevision: "3.7.101"
       helm:
         valuesObject:
+          ingress:
+            enabled: false
           k8sState:
             persistence:
               enabled: true
@@ -38,7 +40,6 @@ spec:
             alarms:
               storageclass: longhorn-talos
               volumesize: 3Gi
-
   destination:
     server: https://kubernetes.default.svc
     namespace: netdata
