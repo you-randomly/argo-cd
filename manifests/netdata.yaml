@@ -1,3 +1,15 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: netdata
+  labels:
+    pod-security.kubernetes.io/enforce: privileged
+    pod-security.kubernetes.io/enforce-version: latest
+    pod-security.kubernetes.io/audit: privileged
+    pod-security.kubernetes.io/audit-version: latest
+    pod-security.kubernetes.io/warn: privileged
+    pod-security.kubernetes.io/warn-version: latest
+---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -6,7 +18,7 @@ metadata:
 spec:
   syncPolicy:
     syncOptions:
-      - CreateNamespace=true
+      - CreateNamespace=false
   project: default
   sources:
     - chart: netdata
