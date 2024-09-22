@@ -12,22 +12,24 @@ spec:
     - chart: netdata
       repoURL: https://netdata.github.io/helmchart/
       targetRevision: "3.7.101"
+      helm:
+        valuesObject:
+          k8sState:
+            persistence:
+              enabled: true
+              storageClass: longhorn-talos
+              volumesize: 3Gi
+          parent:
+            database:
+              storageClass: longhorn-talos
+              volumesize: 3Gi
+            alarms:
+              storageClass: longhorn-talos
+              volumesize: 3Gi
+
   destination:
     server: https://kubernetes.default.svc
     namespace: netdata
----
-kind: PersistentVolumeClaim
-apiVersion: v1
-metadata:
-  name: netdata
-  namespace: netdata
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
-  storageClassName: longhorn-talos
 ---
 kind: HTTPRoute
 apiVersion: gateway.networking.k8s.io/v1beta1
