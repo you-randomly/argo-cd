@@ -1,0 +1,119 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: audiobookshelf
+---
+apiVersion: v1
+kind: apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: audiobookshelf
+  namespace: default
+  labels:
+    app: audiobookshelf
+spec:
+  storageClassName: longhorn
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 3Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: audiobookshelf
+  namespace: audiobookshelf
+  labels:
+    app: audiobookshelf
+spec:
+  selector:
+    matchLabels:
+      app: audiobookshelf
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: audiobookshelf
+    spec:
+      # initContainers:
+        # Init containers are exactly like regular containers, except:
+          # - Init containers always run to completion.
+          # - Each init container must complete successfully before the next one starts.
+      containers:
+      - name: audiobookshelf
+        image:  ghcr.io/advplyr/audiobookshelf:2.7.1
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 100m
+            memory: 100Mi
+        ports:
+        - containerPort:  80
+          name: audiobookshelf
+        volumeMounts:
+        - name: config
+          mountPath: /config
+        - name: config-new
+          mountPath: /config-new
+        - name: metadata
+          mountPath: /metadata
+        - name: audiobooks
+          mountPath: /audiobooks
+      volumes:
+        - name: config
+          nfs:
+            server: "192.168.200.184"
+            path: "/volume1/Nomad/audiobookshelf"
+        - name: metadata
+          nfs:
+            server: "192.168.200.184"
+            path: "/volume1/Nomad/audiobookshelf-meta"
+        - name: audiobooks
+          nfs:
+            server: "192.168.200.184"
+            path: "/volume1/media/audiobooks"
+        - name: audiobookshelf
+          persistentVolumeClaim:
+            claimName: audiobookshelf
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: audiobookshelf
+  namespace: audiobookshelf
+  labels:
+    app: audiobookshelf
+spec:
+  selector:
+    app: audiobookshelf
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+  type: ClusterIP
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: HTTPRoute
+metadata:
+  name: audiobookshelf
+  namespace: audiobookshelf
+spec:
+  hostnames:
+    - audiobookshelf.lab.jake-watson.co.uk
+  parentRefs:
+    - name: cilium-gateway
+      namespace: default
+  rules:
+    - backendRefs:
+      - kind: Service
+        name: audiobookshelf
+        port: 80
