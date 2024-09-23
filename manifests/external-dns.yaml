@@ -106,6 +106,9 @@ spec:
         provider:
           name: cloudflare
         fullnameOverride: external-dns
+        serviceAccount:
+          create: true
+          name: external-dns-cf
         policy: sync
         registry: txt
         txtOwnerId: kubernetes
