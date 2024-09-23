@@ -67,7 +67,6 @@ spec:
         registry: noop
         sources:
           - gateway-httproute
-          - crd
         
         env:
           - name: EXTERNAL_DNS_PIHOLE_PASSWORD
@@ -76,7 +75,48 @@ spec:
                 name: pihole-password
                 key: EXTERNAL_DNS_PIHOLE_PASSWORD
           - name: EXTERNAL_DNS_PIHOLE_SERVER
-            value: "http://192.168.2.74"
+            value: "https://192.168.2.74"
+  syncPolicy:
+    automated:
+      allowEmpty: true
+      prune: true
+      selfHeal: true
+---
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: external-dns-cf
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: external-dns-cf
+  namespace: argocd
+spec:
+  destination:
+    namespace: external-dns-cf
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    chart: external-dns
+    repoURL: https://kubernetes-sigs.github.io/external-dns/
+    targetRevision: 1.15.0
+    helm:
+      valuesObject:
+        provider:
+          name: cloudflare
+        fullnameOverride: external-dns
+        policy: sync
+        registry: txt
+        txtOwnerId: kubernetes
+        sources:
+          - crd
+        env:
+          - name: CF_API_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: cf-extdns-key
+                key: api-key
   syncPolicy:
     automated:
       allowEmpty: true
