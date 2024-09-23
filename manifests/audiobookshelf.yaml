@@ -94,8 +94,9 @@ metadata:
 spec:
   hostnames:
     - audiobookshelf.lab.jake-watson.co.uk
+    - abs.lab.jake-watson.co.uk
   parentRefs:
-    - name: cilium-gateway
+    - name: cilium-gateway-external
       namespace: default
   rules:
     - backendRefs:
