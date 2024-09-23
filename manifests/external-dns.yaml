@@ -55,7 +55,7 @@ spec:
   destination:
     namespace: external-dns
     server: https://kubernetes.default.svc
-  project: homelab
+  project: default
   source:
     chart: external-dns
     repoURL: https://kubernetes-sigs.github.io/external-dns/
