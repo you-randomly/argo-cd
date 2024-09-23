@@ -2,7 +2,7 @@ apiVersion: external-secrets.io/v1beta1
 kind: ExternalSecret
 metadata:
   name: cf-extdns-email
-  namespace: external-dns
+  namespace: external-dns-cf
 spec:
   refreshInterval: 10s
   secretStoreRef:
@@ -18,7 +18,7 @@ apiVersion: external-secrets.io/v1beta1
 kind: ExternalSecret
 metadata:
   name: cf-extdns-key
-  namespace: external-dns
+  namespace: external-dns-cf
 spec:
   refreshInterval: 10s
   secretStoreRef:
