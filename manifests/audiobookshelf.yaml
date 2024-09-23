@@ -116,8 +116,3 @@ spec:
       recordType: A
       targets:
         - 212.69.47.125
-    - dnsName: audiobookshelf.nomad.jake-watson.co.uk
-      recordTTL: 180
-      recordType: A
-      targets:
-        - 212.69.47.125
