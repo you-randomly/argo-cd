@@ -20,7 +20,7 @@ spec:
     - secretKey: username
       remoteRef:
         key: "419ba4a2-8683-4fbd-811e-b1f60148c9aa"
-    - secretKey: admin-key
+    - secretKey: adminPassword
       remoteRef:
         key: "d4595a98-1408-4218-a70f-b1f6014de185"
     - secretKey: license-key
@@ -57,7 +57,7 @@ spec:
             valueFrom:
               secretKeyRef:
                 name: foundry-vtt
-                key: admin-key
+                key: adminPassword
           - name: FOUNDRY_LICENSE_KEY
             valueFrom:
               secretKeyRef:
