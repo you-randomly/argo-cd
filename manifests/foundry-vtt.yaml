@@ -1,0 +1,70 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: foundry-vtt
+---
+kind: ExternalSecret
+apiVersion: external-secrets.io/v1beta1
+metadata:
+  name: foundry-vtt
+  namespace: foundry-vtt
+spec:
+  refreshInterval: 10s
+  secretStoreRef:
+    name: bitwarden-secretsmanager
+    kind: ClusterSecretStore
+  data:
+    - secretKey: password
+      remoteRef:
+        key: "1d5d6edc-8005-4313-8524-b1f601490707"
+    - secretKey: username
+      remoteRef:
+        key: "419ba4a2-8683-4fbd-811e-b1f60148c9aa"
+    - secretKey: admin-key
+      remoteRef:
+        key: "d4595a98-1408-4218-a70f-b1f6014de185"
+    - secretKey: license-key
+      remoteRef:
+        key: "66aaa0b2-d962-4608-96c9-b1f6014d5534"
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: foundry-vtt
+  namespace: argocd
+spec:
+  destination:
+    namespace: foundry-vtt
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    chart: foundry-vtt
+    repoURL: foundry-vtt https://hugoprudente.github.io/helm-charts/incubator/
+    targetRevision: "12.324"
+    helm:        
+        env:
+          - name: FOUNDRY_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: foundry-vtt
+                key: password
+          - name: FOUNDRY_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: foundry-vtt
+                key: username
+          - name: FOUNDRY_ADMIN_KEY
+            valueFrom:
+              secretKeyRef:
+                name: foundry-vtt
+                key: admin-key
+          - name: FOUNDRY_LICENSE_KEY
+            valueFrom:
+              secretKeyRef:
+                name: foundry-vtt
+                key: license-key
+  syncPolicy:
+    automated:
+      allowEmpty: true
+      prune: true
+      selfHeal: true
