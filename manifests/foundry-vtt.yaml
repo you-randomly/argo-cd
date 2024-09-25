@@ -27,45 +27,74 @@ spec:
       remoteRef:
         key: "66aaa0b2-d962-4608-96c9-b1f6014d5534"
 ---
-apiVersion: argoproj.io/v1alpha1
-kind: Application
+apiVersion: v1
+kind: deployment
 metadata:
   name: foundry-vtt
-  namespace: argocd
+  namespace: foundry-vtt
 spec:
-  destination:
-    namespace: foundry-vtt
-    server: https://kubernetes.default.svc
-  project: default
-  source:
-    chart: foundry-vtt
-    repoURL: https://hugoprudente.github.io/helm-charts/incubator/
-    targetRevision: "12.324"
-    helm:
-      parameters:
-        - name: foundryvtt.license_key
-          valueFrom:
-            secretKeyRef:
-              name: foundry-vtt
-              key: license-key
-        - name: foundryvtt.adminPassword
-          valueFrom:
-            secretKeyRef:
-              name: foundry-vtt
-              key: 
-        - name: foundryvtt.username
+  replicas: 1
+  selector:
+    matchLabels:
+      app: foundry-vtt
+  template:
+    metadata:
+      labels:
+        app: foundry-vtt
+    spec:
+      containers:
+      - name: foundry-vtt
+        image: felddy/foundryvtt:release
+        ports:
+        - containerPort: 30000
+        env:
+        - name: FOUNDRY_USERNAME
           valueFrom:
             secretKeyRef:
               name: foundry-vtt
               key: username
-        - name: foundryvtt.password
+        - name: FOUNDRY_PASSWORD
           valueFrom:
             secretKeyRef:
               name: foundry-vtt
               key: password
-              
-  syncPolicy:
-    automated:
-      allowEmpty: true
-      prune: true
-      selfHeal: true
+        - name: FOUNDRY_ADMIN_KEY
+          valueFrom:
+            secretKeyRef:
+              name: foundry-vtt
+              key: adminPassword
+        - name: FOUNDRY_LICENSE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: foundry-vtt
+              key: license-key
+---
+apiVersion: v1
+kind: service
+metadata:
+  name: foundry-vtt
+  namespace: foundry-vtt
+spec:
+  selector:
+    app: foundry-vtt
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 30000
+  type: clusterIP
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: HTTPRoute
+metadata:
+  name: foundry-vtt
+  namespace: foundry-vtt
+spec:
+  hostnames:
+    - foundry-vtt.lab.jake-watson.co.uk
+  parentRefs:
+    - name: cilium-gateway-external
+      namespace: default
+  rules:
+    - backendRefs:
+        - name: foundry-vtt
+          port: 80
