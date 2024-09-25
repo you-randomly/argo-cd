@@ -36,6 +36,9 @@ k8sServicePort: 7445
 gatewayAPI:
   enabled: true
 
+prometheus:
+  enabled: true
+
 hubble:
   enabled: true
   metrics:
