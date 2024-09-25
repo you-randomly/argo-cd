@@ -39,7 +39,7 @@ spec:
   project: default
   source:
     chart: foundry-vtt
-    repoURL: foundry-vtt https://hugoprudente.github.io/helm-charts/incubator/
+    repoURL: https://hugoprudente.github.io/helm-charts/incubator/
     targetRevision: "12.324"
     helm:        
         env:
