@@ -58,6 +58,8 @@ spec:
           mountPath: /metadata
         - name: audiobooks
           mountPath: /audiobooks
+        - name: comics
+          mountPath: /comics
       volumes:
         - name: metadata
           nfs:
@@ -67,6 +69,10 @@ spec:
           nfs:
             server: "192.168.200.184"
             path: "/volume1/media/audiobooks"
+        - name: comics
+          nfs:
+            server: "192.168.200.184"
+            path: "/volume1/media/Comics"
         - name: config-new
           persistentVolumeClaim:
             claimName: audiobookshelf
