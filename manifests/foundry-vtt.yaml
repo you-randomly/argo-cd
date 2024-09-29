@@ -27,13 +27,28 @@ spec:
       remoteRef:
         key: "66aaa0b2-d962-4608-96c9-b1f6014d5534"
 ---
+kind: PersistentVolumeClaim
 apiVersion: v1
-kind: deployment
+metadata:
+  name: foundry-vtt
+  namespace: foundry-vtt
+spec:
+  storageClassName: longhorn-talos
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: foundry-vtt
   namespace: foundry-vtt
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: foundry-vtt
@@ -44,10 +59,50 @@ spec:
     spec:
       containers:
       - name: foundry-vtt
-        image: felddy/foundryvtt:release
+        image: felddy/foundryvtt:12.324
         ports:
         - containerPort: 30000
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: false
+          seccompProfile:
+            type: RuntimeDefault
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+
         env:
+        - name: UV_THREADPOOL_SIZE
+          value: "6"
+        - name: CONTAINER_CACHE
+          value: /data/container_cache
+        - name: CONTAINER_CACHE_SIZE
+          value: "1"
+        - name: FOUNDRY_GID
+          value: "421"
+        - name: CONTAINER_PATCHES
+          value: /data/patches
+        - name: TIMEZONE
+          value: UTC
+        - name: FOUNDRY_UID
+          value: "421"
+        - name: FOUNDRY_HOSTNAME
+          value: foundry-vtt.lab.jake-watson.co.uk
+        - name: FOUNDRY_LOCAL_HOSTNAME
+          value: foundry-vtt.lab.jake-watson.co.uk
+        - name: FOUNDRY_LANGUAGE
+          value: en.core
+        - name: FOUNDRY_MINIFY_STATIC_FILES
+          value: "true"
+        - name: FOUNDRY_CSS_THEME
+          value: foundry
+        - name: FOUNDRY_PROXY_SSL
+          value: "true"
+        - name: FOUNDRY_PROXY_PORT
+          value: "443"
+        - name: FOUNDRY_VERSION
+          value: "12.324"
         - name: FOUNDRY_USERNAME
           valueFrom:
             secretKeyRef:
@@ -68,9 +123,22 @@ spec:
             secretKeyRef:
               name: foundry-vtt
               key: license-key
+        - name: CONTAINER_VERBOSE
+          value: "true"
+        volumeMounts:
+        - name: foundry-vtt
+          mountPath: /data
+      volumes:
+      - name: foundry-vtt-cache
+        nfs:
+          server: "192.168.200.184"
+          path: "/volume1/Nomad/foundry-container-cache"
+      - name: foundry-vtt
+        persistentVolumeClaim:
+          claimName: foundry-vtt
 ---
 apiVersion: v1
-kind: service
+kind: Service
 metadata:
   name: foundry-vtt
   namespace: foundry-vtt
@@ -81,7 +149,7 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 30000
-  type: clusterIP
+  type: ClusterIP
 ---
 apiVersion: gateway.networking.k8s.io/v1beta1
 kind: HTTPRoute
@@ -98,3 +166,16 @@ spec:
     - backendRefs:
         - name: foundry-vtt
           port: 80
+---
+apiVersion: externaldns.k8s.io/v1alpha1
+kind: DNSEndpoint
+metadata:
+  name: foundry-vtt
+  namespace: foundry-vtt
+spec:
+  endpoints:
+    - dnsName: foundry-vtt.lab.jake-watson.co.uk
+      recordTTL: 300
+      recordType: A
+      targets:
+        - 212.69.47.125
