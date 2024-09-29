@@ -4,8 +4,11 @@ metadata:
   name: "l7-visibility"
 spec:
   endpointSelector:
-    matchLabels:
-      "app.kubernetes.io/instance": "argocd"
+    matchExpressions:
+      - key: "io.kubernetes.pod.namespace"
+        operator: "NotIn"
+        values:
+        - "kube-system"
   egress:
   - toPorts:
     - ports:
