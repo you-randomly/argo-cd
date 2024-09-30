@@ -101,8 +101,6 @@ spec:
           value: "true"
         - name: FOUNDRY_PROXY_PORT
           value: "443"
-        - name: FOUNDRY_VERSION
-          value: "12.324"
         - name: FOUNDRY_USERNAME
           valueFrom:
             secretKeyRef:
