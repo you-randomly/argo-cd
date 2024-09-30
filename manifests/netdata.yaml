@@ -49,6 +49,13 @@ spec:
               enabled: true
               storageclass: longhorn-talos
               volumesize: 3Gi
+            claiming:
+              enabled: true
+              rooms: "f32f8731-5daf-4cb0-a010-11e4d206e28e"
+            envFrom:
+              - secretRef:
+                  name: netdata
+    
           parent:
             database:
               storageclass: longhorn-talos
@@ -56,6 +63,13 @@ spec:
             alarms:
               storageclass: longhorn-talos
               volumesize: 3Gi
+            claiming:
+              enabled: true
+              rooms: "f32f8731-5daf-4cb0-a010-11e4d206e28e"
+            envFrom:
+              - secretRef:
+                  name: netdata
+          child:
             claiming:
               enabled: true
               rooms: "f32f8731-5daf-4cb0-a010-11e4d206e28e"
