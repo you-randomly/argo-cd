@@ -10,6 +10,22 @@ metadata:
     pod-security.kubernetes.io/warn: privileged
     pod-security.kubernetes.io/warn-version: latest
 ---
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: netdata
+  namespace: netdata
+spec:
+  refreshInterval: 10s
+  secretStoreRef:
+    # This name must match the metadata.name in the `SecretStore`
+    name: bitwarden-secretsmanager
+    kind: ClusterSecretStore
+  data:
+  - secretKey: NETDATA_CLAIM_TOKEN
+    remoteRef:
+      key: "0512076e-6b4c-4324-9cee-b1f30104a774"
+---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -40,6 +56,12 @@ spec:
             alarms:
               storageclass: longhorn-talos
               volumesize: 3Gi
+            claiming:
+              enabled: true
+              rooms: "f32f8731-5daf-4cb0-a010-11e4d206e28e"
+            envFrom:
+              - secretRef:
+                  name: netdata
   destination:
     server: https://kubernetes.default.svc
     namespace: netdata
