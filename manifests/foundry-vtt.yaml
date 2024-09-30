@@ -59,7 +59,7 @@ spec:
     spec:
       containers:
       - name: foundry-vtt
-        image: felddy/foundryvtt:12.330.0
+        image: felddy/foundryvtt:12.331.0
         ports:
         - containerPort: 30000
         securityContext:
