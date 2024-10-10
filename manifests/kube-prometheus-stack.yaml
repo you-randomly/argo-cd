@@ -10,7 +10,7 @@ metadata:
   namespace: kube-prometheus-stack
 spec:
   destination:
-    namespace: external-dns
+    namespace: kube-prometheus-stack
     server: https://kubernetes.default.svc
   project: default
   source:
