@@ -24,48 +24,6 @@ spec:
     chart: kube-prometheus-stack
     repoURL: https://prometheus-community.github.io/helm-charts
     targetRevision: 65.1.1
-    helm:
-      values: |
-        grafana:
-          enabled: true
-          ingress:
-            enabled: false
-          persistence:
-            enabled: true
-            storageClassName: longhorn-talos
-            size: 5Gi
-        prometheusOperator:
-          prometheus:
-            prometheusSpec:
-              storageSpec:
-                volumeClaimTemplate:
-                  spec:
-                    storageClassName: longhorn-talos
-                    accessModes: ["ReadWriteOnce"]
-                    resources:
-                      requests:
-                        storage: 10Gi
-        kube-state-metrics:
-          enabled: true
-        nodeExporter:
-          enabled: true
-        alertmanager:
-          enabled: true
-          ingress:
-            enabled: false
-          persistence:
-            enabled: true
-            storageClassName: longhorn-talos
-            size: 5Gi
-        kubelet:
-          serviceMonitor:
-            https: true
-        kubeScheduler:
-          serviceMonitor:
-            https: true
-        kubeControllerManager:
-          serviceMonitor:
-            https: true
   syncPolicy:
     automated:
       allowEmpty: true
