@@ -64,3 +64,19 @@ spec:
       allowEmpty: true
       prune: true
       selfHeal: true
+---
+kind: HTTPRoute
+apiVersion: gateway.networking.k8s.io/v1beta1
+metadata:
+  name: ui-kube-prometheus-stack
+  namespace: kube-prometheus-stack
+spec:
+  hostnames:
+    - grafana.lab.jake-watson.co.uk
+  parentRefs:
+  - name: cilium-gateway
+    namespace: default
+  rules:
+  - backendRefs:
+         - name: kube-prometheus-stack-grafana
+           port: 80
