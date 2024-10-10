@@ -48,6 +48,8 @@ spec:
       allowEmpty: true
       prune: true
       selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
 ---
 kind: HTTPRoute
 apiVersion: gateway.networking.k8s.io/v1beta1
