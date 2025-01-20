@@ -39,7 +39,7 @@ spec:
   sources:
     - chart: netdata
       repoURL: https://netdata.github.io/helmchart/
-      targetRevision: "3.7.101"
+      targetRevision: "3.7.116"
       helm:
         valuesObject:
           ingress:
