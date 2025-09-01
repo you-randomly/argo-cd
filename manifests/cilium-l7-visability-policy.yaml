@@ -25,3 +25,10 @@ spec:
       rules:
         dns:
         - matchPattern: "*"
+  - toPorts:
+    - ports:
+      - port: "80"
+        protocol: TCP
+      rules:
+        dns:
+        - matchPattern: "*"

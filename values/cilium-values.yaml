@@ -38,6 +38,22 @@ gatewayAPI:
 
 prometheus:
   enabled: true
+  serviceMonitor:
+    enabled: false
+
+operator:
+  enabled: true
+  prometheus:
+    enabled: true
+    serviceMonitor:
+      enabled: false
+
+envoy:
+  enabled: true
+  prometheus:
+    enabled: true
+    serviceMonitor:
+      enabled: false
 
 hubble:
   enabled: true
@@ -50,9 +66,15 @@ hubble:
       - port-distribution
       - icmp
       - http
+    serviceMonitor:
+      enabled: false
   relay:
     enabled: true
     rollOutPods: true
+    prometheus:
+      enabled: true
+      serviceMonitor:
+        enabled: false
   ui:
     enabled: true
     rollOutPods: true

@@ -51,11 +51,10 @@ metadata:
   namespace: default
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
-    lbipam.cilium.io/ips: 192.168.200.4
 spec:
   addresses: 
     - type: IPAddress
-      value: 192.168.200.4
+      value: 192.168.200.2
   gatewayClassName: cilium
   listeners:
     - name: https

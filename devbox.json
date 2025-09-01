@@ -7,7 +7,9 @@
     "k9s@latest",
     "hubble@latest",
     "cilium-cli@latest",
-    "lazygit@latest"
+    "lazygit@latest",
+    "go@latest",
+    "kubernetes-helm@latest"
   ],
   "shell": {
     "init_hook": [
