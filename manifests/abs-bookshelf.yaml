@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
       - name: app
-        image: yourandomly/abs-bookclub:v1.2.0
+        image: yourandomly/abs-bookclub:v1.3.0
         imagePullPolicy: Always
         ports:
           - containerPort: 5000
@@ -35,9 +35,19 @@ spec:
           - name: API_KEY
             valueFrom:
               secretKeyRef:
-                name: abs-bookclub
+                name: api-key
                 key: API_KEY
                 optional: false
+          - name: VAPID_PRIVATE_KEY
+            valueFrom:
+              secretKeyRef:
+                name: vapi-priv-key
+                key: VAPID_PRIVATE_KEY
+                optional: true
+          - name: VAPID_PUBLIC_KEY
+            value: "BBLw5yHHnVt_zen7rj5Im9LFes36QgvnQwxjLtlkJN358_bN6PWWEIiggyPsiYinQHnx0rXPfm9I9-XsmzSCCXU"
+          - name: TZ
+            value: Europe/London
         resources:
           requests:
             cpu: 50m
@@ -102,7 +112,7 @@ spec:
 apiVersion: external-secrets.io/v1beta1
 kind: ExternalSecret
 metadata:
-  name: abs-bookclub
+  name: api-key
   namespace: abs-bookclub
 spec:
   refreshInterval: 10s
@@ -113,3 +123,19 @@ spec:
     - secretKey: API_KEY
       remoteRef:
         key: b710d7f5-6216-4598-b765-b335000631b6  # This is the ID of the Bitwarden secret
+---
+# ExternalSecret stub: update secretStoreRef.name and remoteRef to match your Bitwarden setup
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: vapi-priv-key
+  namespace: abs-bookclub
+spec:
+  refreshInterval: 10s
+  secretStoreRef:
+    name: bitwarden-secretsmanager
+    kind: ClusterSecretStore
+  data:
+    - secretKey: VAPID_PRIVATE_KEY
+      remoteRef:
+        key: fc57bf0f-ee17-43ee-baff-b34d001a1df9  # This is the ID of the Bitwarden secret
