@@ -1,0 +1,16 @@
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: foundry-license
+  namespace: default
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: bitwarden-secretsmanager
+    kind: ClusterSecretStore
+  target:
+    name: foundry-license
+  data:
+    - secretKey: license-key
+      remoteRef:
+        key: 66aaa0b2-d962-4608-96c9-b1f6014d5534

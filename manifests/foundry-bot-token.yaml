@@ -1,0 +1,16 @@
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: discord-bot-secrets
+  namespace: foundry-bot
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: bitwarden-secretsmanager
+    kind: ClusterSecretStore
+  target:
+    name: discord-bot-secrets
+  data:
+    - secretKey: DISCORD_BOT_TOKEN
+      remoteRef:
+        key: 82483aaa-b257-4050-ba94-b3c100ea2968
