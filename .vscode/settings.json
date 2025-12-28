@@ -1,5 +1,6 @@
 {
     "yaml.schemas": {
-        "https://json.schemastore.org/kustomization.json": "file:///home/jake/Documents/k8s/argo-cd/manifests/argocd-app.yaml"
+        "https://json.schemastore.org/kustomization.json": "file:///home/jake/Documents/k8s/argo-cd/manifests/argocd-app.yaml",
+        "kubernetes://schema/v1%40persistentvolumeclaim": "file:///home/jake/nas/k8s/argo-cd/manifests/foundry-vtt.yaml"
     }
 }
