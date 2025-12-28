@@ -16,7 +16,7 @@ spec:
   project: default
   
   source:
-    repoURL: https://github.com/syntasso/kratix
+    repoURL: https://github.com/syntasso/kratix.git
     targetRevision: main
     path: distribution/single-cluster
     
