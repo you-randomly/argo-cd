@@ -20,7 +20,7 @@ spec:
   source:
     repoURL: https://github.com/you-randomly/kratix-foundry.git
     targetRevision: main
-    path: deploy/production
+    path: deploy/argocd/kratix-foundry-promises.yaml
     
   destination:
     server: https://kubernetes.default.svc
