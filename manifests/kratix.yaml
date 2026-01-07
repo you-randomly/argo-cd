@@ -16,10 +16,9 @@ spec:
   project: default
   
   source:
-    repoURL: https://github.com/syntasso/kratix.git
+    repoURL: https://github.com/you-randomly/kratix-foundry.git
     targetRevision: main
-    path: distribution/single-cluster
-    
+    path: deploy/kratix
   destination:
     server: https://kubernetes.default.svc
     namespace: kratix-platform-system
