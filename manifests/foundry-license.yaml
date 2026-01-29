@@ -2,7 +2,7 @@ apiVersion: external-secrets.io/v1beta1
 kind: ExternalSecret
 metadata:
   name: foundry-license
-  namespace: default
+  namespace: foundry-vtt
 spec:
   refreshInterval: 1h
   secretStoreRef:
@@ -14,3 +14,20 @@ spec:
     - secretKey: license-key
       remoteRef:
         key: 66aaa0b2-d962-4608-96c9-b1f6014d5534
+---
+apiVersion: foundry.platform/v1alpha1
+kind: FoundryLicense
+metadata:
+  name: primary-license
+  namespace: foundry-vtt
+spec:
+  licenseSecretRef:
+    name: foundry-license
+    key: license-key
+  gateway:
+    parentRef:
+      name: cilium-gateway-external
+      namespace: default
+    dnsTarget: "212.69.47.125"
+    publicIP: "212.69.47.125"
+    baseDomain: "lab.jake-watson.co.uk"
