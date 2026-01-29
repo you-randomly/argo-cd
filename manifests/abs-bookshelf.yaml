@@ -109,7 +109,7 @@ spec:
         - 212.69.47.125
 ---
 # ExternalSecret stub: update secretStoreRef.name and remoteRef to match your Bitwarden setup
-apiVersion: external-secrets.io/v1beta1
+apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
   name: api-key
@@ -125,7 +125,7 @@ spec:
         key: b710d7f5-6216-4598-b765-b335000631b6  # This is the ID of the Bitwarden secret
 ---
 # ExternalSecret stub: update secretStoreRef.name and remoteRef to match your Bitwarden setup
-apiVersion: external-secrets.io/v1beta1
+apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
   name: vapi-priv-key
