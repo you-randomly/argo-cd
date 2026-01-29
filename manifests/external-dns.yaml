@@ -14,7 +14,7 @@ spec:
     remoteRef:
       key: "c889f2df-2f9e-4c95-bd66-b1f40158de6a"
 ---
-apiVersion: external-secrets.io/v1beta1
+apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
   name: cf-extdns-key
@@ -30,7 +30,7 @@ spec:
     remoteRef:
       key: "19a22689-3417-4de4-9406-b1ea011195b7"
 ---
-apiVersion: external-secrets.io/v1beta1
+apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
   name: pihole-password
