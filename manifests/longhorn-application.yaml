@@ -27,7 +27,7 @@ spec:
       helm:
         values: |
           preUpgradeChecker:
-            jobEnabled: true
+            jobEnabled: false
           metrics:
             serviceMonitor:
               enabled: true
