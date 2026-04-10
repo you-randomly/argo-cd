@@ -2,6 +2,9 @@ ipam:
   mode: kubernetes
 
 l2announcements:
+  enabled: false
+
+bgpControlPlane:
   enabled: true
 
 kubeProxyReplacement: true
