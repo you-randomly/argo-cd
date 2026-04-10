@@ -59,7 +59,7 @@ metadata:
   name: foundry-vtt
   namespace: foundry-vtt
 spec:
-  replicas: 1
+  replicas: 0
   strategy:
     type: Recreate
   selector:
@@ -124,8 +124,6 @@ spec:
           value: foundry-vtt.lab.jake-watson.co.uk
         - name: FOUNDRY_LANGUAGE
           value: en.core
-        - name: FOUNDRY_MINIFY_STATIC_FILES
-          value: "true"
         - name: FOUNDRY_CSS_THEME
           value: foundry
         - name: FOUNDRY_PROXY_SSL
@@ -157,8 +155,8 @@ spec:
         volumeMounts:
         - name: foundry-vtt
           mountPath: /data-old
-        - name: foundry-vtt-world-data
-          mountPath: /data/Data/worlds
+        #- name: foundry-vtt-world-data
+        #  mountPath: /data/Data/worlds
         - name: foundry-vtt-not-world-data
           mountPath: /data
       volumes:
