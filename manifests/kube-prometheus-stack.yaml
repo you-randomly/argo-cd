@@ -45,6 +45,7 @@ spec:
           additionalDataSources:
             - name: Prometheus
               type: prometheus
+              uid: prometheus-uid
               url: http://kube-prometheus-stack-prometheus.kube-prometheus-stack.svc.cluster.local:9090
               access: proxy
               isDefault: true
@@ -52,6 +53,7 @@ spec:
                 timeInterval: 15s
             - name: Loki
               type: loki
+              uid: loki-uid
               url: http://loki.loki.svc.cluster.local:3100
               access: proxy
               isDefault: false
@@ -63,10 +65,10 @@ spec:
                     datasourceUid: tempo-uid
             - name: Tempo
               type: tempo
+              uid: tempo-uid
               url: http://tempo.tempo.svc.cluster.local:3100
               access: proxy
               isDefault: false
-              uid: tempo-uid
               jsonData:
                 nodeGraph:
                   enabled: true
