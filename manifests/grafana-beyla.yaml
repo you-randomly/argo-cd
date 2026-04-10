@@ -1,0 +1,245 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: grafana-beyla
+  labels:
+    pod-security.kubernetes.io/enforce: privileged
+    pod-security.kubernetes.io/enforce-version: latest
+    pod-security.kubernetes.io/audit: privileged
+    pod-security.kubernetes.io/audit-version: latest
+    pod-security.kubernetes.io/warn: privileged
+    pod-security.kubernetes.io/warn-version: latest
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: grafana-beyla
+  namespace: grafana-beyla
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: grafana-beyla
+rules:
+  - apiGroups: ['']
+    resources:
+      - nodes
+      - nodes/proxy
+      - services
+      - endpoints
+      - pods
+    verbs: ['get', 'list', 'watch']
+  - apiGroups: ['apps']
+    resources:
+      - deployments
+      - daemonsets
+      - replicasets
+      - statefulsets
+    verbs: ['get', 'list', 'watch']
+  - nonResourceURLs: ['/metrics']
+    verbs: ['get']
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: grafana-beyla
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: grafana-beyla
+subjects:
+  - kind: ServiceAccount
+    name: grafana-beyla
+    namespace: grafana-beyla
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-beyla
+  namespace: grafana-beyla
+data:
+  beyla-config.yml: |
+    # Beyla configuration for auto-instrumentation
+    # Discovery settings
+    discovery:
+      services:
+        - k8s_namespace: ".*"
+          k8s_pod_name: ".*"
+    
+    # Exclude certain namespaces from instrumentation
+    routes:
+      unmatch: 
+        - k8s_namespace: "kube-system"
+        - k8s_namespace: "kube-public"
+        - k8s_namespace: "kube-node-lease"
+        - k8s_namespace: "grafana-beyla"
+        - k8s_namespace: "grafana-alloy"
+    
+    # OTEL exporter configuration
+    otel_traces_export:
+      endpoint: http://grafana-alloy.grafana-alloy.svc.cluster.local:4317
+      insecure: true
+    
+    otel_metrics_export:
+      endpoint: http://grafana-alloy.grafana-alloy.svc.cluster.local:4317
+      insecure: true
+      interval: 30s
+    
+    # Prometheus metrics endpoint (optional)
+    prometheus_export:
+      port: 8999
+      path: /metrics
+    
+    # Attributes to add to all telemetry
+    attributes:
+      cluster: talos
+      instrumentation: beyla
+    
+    # Log level
+    log_level: info
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: grafana-beyla
+  namespace: grafana-beyla
+  labels:
+    app: grafana-beyla
+spec:
+  selector:
+    matchLabels:
+      app: grafana-beyla
+  template:
+    metadata:
+      labels:
+        app: grafana-beyla
+    spec:
+      serviceAccountName: grafana-beyla
+      hostPID: true
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+        - name: beyla
+          image: grafana/beyla:1.5.0
+          imagePullPolicy: IfNotPresent
+          args:
+            - --config=/config/beyla-config.yml
+          env:
+            - name: BEYLA_CONFIG_PATH
+              value: /config/beyla-config.yml
+            - name: KUBE_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: KUBE_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: KUBE_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          ports:
+            - name: metrics
+              containerPort: 8999
+              protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: sys-kernel-debug
+              mountPath: /sys/kernel/debug
+            - name: cgroup
+              mountPath: /sys/fs/cgroup
+          securityContext:
+            privileged: true
+            capabilities:
+              add:
+                - SYS_ADMIN
+                - SYS_RESOURCE
+                - SYS_PTRACE
+                - NET_ADMIN
+                - BPF
+            runAsUser: 0
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+      volumes:
+        - name: config
+          configMap:
+            name: grafana-beyla
+        - name: sys-kernel-debug
+          hostPath:
+            path: /sys/kernel/debug
+            type: Directory
+        - name: cgroup
+          hostPath:
+            path: /sys/fs/cgroup
+            type: Directory
+      tolerations:
+        - effect: NoSchedule
+          operator: Exists
+        - effect: NoExecute
+          operator: Exists
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana-beyla
+  namespace: grafana-beyla
+  labels:
+    app: grafana-beyla
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    - name: metrics
+      port: 8999
+      targetPort: 8999
+      protocol: TCP
+  selector:
+    app: grafana-beyla
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: grafana-beyla
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  destination:
+    namespace: grafana-beyla
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    repoURL: https://github.com/you-randomly/argo-cd.git
+    targetRevision: HEAD
+    path: manifests
+    kustomize:
+      patches:
+        - target:
+            group: argoproj.io
+            kind: Application
+            name: grafana-beyla
+          patch: |-
+            - op: add
+              path: /metadata/name
+              value: this-application
+  syncPolicy:
+    automated:
+      allowEmpty: true
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 20
+      backoff:
+        duration: 15s
+        factor: 2
+        maxDuration: 10m
+    syncOptions:
+      - ServerSideApply=true
+      - ApplyOutOfSyncOnly=true
