@@ -1,0 +1,307 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: grafana-alloy
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: grafana-alloy
+  namespace: grafana-alloy
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: grafana-alloy
+rules:
+  - apiGroups: ['']
+    resources:
+      - nodes
+      - nodes/proxy
+      - nodes/metrics
+      - services
+      - endpoints
+      - pods
+    verbs: ['get', 'list', 'watch']
+  - apiGroups: ['extensions']
+    resources:
+      - ingresses
+    verbs: ['get', 'list', 'watch']
+  - nonResourceURLs: ['/metrics', '/metrics/cadvisor']
+    verbs: ['get']
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: grafana-alloy
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: grafana-alloy
+subjects:
+  - kind: ServiceAccount
+    name: grafana-alloy
+    namespace: grafana-alloy
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-alloy
+  namespace: grafana-alloy
+data:
+  config.alloy: |
+    // Kubernetes log collection
+    discovery.kubernetes "pods" {
+      role = "pod"
+    }
+
+    // Discard noisy logs
+    discovery.relabel "pod_logs" {
+      targets = discovery.kubernetes.pods.targets
+
+      // Exclude certain namespaces
+      rule {
+        source_labels = ["__meta_kubernetes_namespace"]
+        regex = "kube-.*|kube-system|opentelemetry"
+        action = "drop"
+      }
+
+      // Skip logs for certain container names
+      rule {
+        source_labels = ["__meta_kubernetes_pod_container_name"]
+        regex = "istio-proxy"
+        action = "drop"
+      }
+
+      // Add namespace label
+      rule {
+        source_labels = ["__meta_kubernetes_namespace"]
+        target_label = "namespace"
+      }
+
+      // Add pod name label
+      rule {
+        source_labels = ["__meta_kubernetes_pod_name"]
+        target_label = "pod"
+      }
+
+      // Add pod container name label
+      rule {
+        source_labels = ["__meta_kubernetes_pod_container_name"]
+        target_label = "container"
+      }
+    }
+
+    // Kubelet log collection
+    discovery.kubernetes "nodes" {
+      role = "node"
+    }
+
+    // Collect logs from pods
+    loki.source.kubernetes "pod_logs" {
+      targets    = discovery.relabel.pod_logs.output
+      forward_to = [loki.process.pod_logs.receiver]
+    }
+
+    // Process pod logs
+    loki.process "pod_logs" {
+      stage.static_labels {
+        values = {
+          cluster = "talos",
+          job = "kubernetes-pods",
+        }
+      }
+      forward_to = [loki.write.loki.receiver]
+    }
+
+    // Write logs to Loki
+    loki.write "loki" {
+      endpoint = "http://loki.loki.svc.cluster.local:3100/loki/api/v1/push"
+    }
+
+    // OTLP trace receiver (optional - receives traces from apps)
+    otelec.receiver.otlp "default" {
+      grpc {
+        endpoint = "0.0.0.0:4317"
+      }
+      http {
+        endpoint = "0.0.0.0:4318"
+      }
+      output {
+        traces  = [otelec.processor.batch.default.input]
+        metrics = [otelec.processor.batch.default.input]
+        logs    = [otelec.processor.batch.default.input]
+      }
+    }
+
+    // Batch processor for efficiency
+    otelec.processor.batch "default" {
+      send_batch_size = 1024
+      timeout = "200ms"
+      output {
+        traces  = [otelec.exporter.otlp.tempo.input]
+        metrics = [otelec.exporter.otlp.prometheus.input]
+        logs    = [loki.write.loki.receiver]
+      }
+    }
+
+    // Export traces to Tempo
+    otelec.exporter.otlp "tempo" {
+      client {
+        endpoint = "tempo.tempo.svc.cluster.local:4317"
+        tls {
+          insecure = true
+        }
+      }
+    }
+
+    // Export metrics to Prometheus
+    otelec.exporter.otlp "prometheus" {
+      client {
+        endpoint = "http://kube-prometheus-stack-prometheus.kube-prometheus-stack.svc.cluster.local:9090"
+      }
+    }
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: grafana-alloy
+  namespace: grafana-alloy
+spec:
+  selector:
+    matchLabels:
+      app: grafana-alloy
+  template:
+    metadata:
+      labels:
+        app: grafana-alloy
+    spec:
+      serviceAccountName: grafana-alloy
+      hostNetwork: false
+      containers:
+        - name: alloy
+          image: grafana/alloy:v1.0.0
+          imagePullPolicy: IfNotPresent
+          args:
+            - run
+            - /etc/alloy/config.alloy
+            - --server.http.listen-addr=0.0.0.0:12345
+            - --server.log.level=info
+          ports:
+            - name: alloy
+              containerPort: 12345
+            - name: otlp-grpc
+              containerPort: 4317
+            - name: otlp-http
+              containerPort: 4318
+          env:
+            - name: HOSTNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: ALLOY_LOG_LEVEL
+              value: info
+          volumeMounts:
+            - name: config
+              mountPath: /etc/alloy
+            - name: varlog
+              mountPath: /var/log
+              readOnly: true
+            - name: varlibdockercontainers
+              mountPath: /var/lib/docker/containers
+              readOnly: true
+            - name: etcmachineid
+              mountPath: /etc/machine-id
+              readOnly: true
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          securityContext:
+            privileged: true
+            runAsUser: 0
+      volumes:
+        - name: config
+          configMap:
+            name: grafana-alloy
+        - name: varlog
+          hostPath:
+            path: /var/log
+        - name: varlibdockercontainers
+          hostPath:
+            path: /var/lib/docker/containers
+        - name: etcmachineid
+          hostPath:
+            path: /etc/machine-id
+            type: FileOrCreate
+      tolerations:
+        - effect: NoSchedule
+          operator: Exists
+        - effect: NoExecute
+          operator: Exists
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana-alloy
+  namespace: grafana-alloy
+  labels:
+    app: grafana-alloy
+spec:
+  type: ClusterIP
+  ports:
+    - name: alloy
+      port: 12345
+      targetPort: 12345
+    - name: otlp-grpc
+      port: 4317
+      targetPort: 4317
+    - name: otlp-http
+      port: 4318
+      targetPort: 4318
+  selector:
+    app: grafana-alloy
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: grafana-alloy
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  destination:
+    namespace: grafana-alloy
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    repoURL: https://github.com/you-randomly/argo-cd.git
+    targetRevision: HEAD
+    path: manifests
+    kustomize:
+      patches:
+        - target:
+            group: argoproj.io
+            kind: Application
+            name: grafana-alloy
+          patch: |-
+            - op: add
+              path: /metadata/name
+              value: this-application
+  syncPolicy:
+    automated:
+      allowEmpty: true
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 20
+      backoff:
+        duration: 15s
+        factor: 2
+        maxDuration: 10m
+    syncOptions:
+      - ServerSideApply=true
+      - ApplyOutOfSyncOnly=true
