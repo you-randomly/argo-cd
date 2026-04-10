@@ -43,14 +43,6 @@ spec:
               enabled: true
               url: http://kube-prometheus-stack-prometheus.kube-prometheus-stack.svc.cluster.local:9090/
           additionalDataSources:
-            - name: Prometheus
-              type: prometheus
-              uid: prometheus-uid
-              url: http://kube-prometheus-stack-prometheus.kube-prometheus-stack.svc.cluster.local:9090
-              access: proxy
-              isDefault: true
-              jsonData:
-                timeInterval: 15s
             - name: Loki
               type: loki
               uid: loki-uid
@@ -75,7 +67,7 @@ spec:
                 lokiSearch:
                   datasourceUid: loki-uid
                 tracesToMetrics:
-                  datasourceUid: prometheus-uid
+                  datasourceUid: prometheus
                 tracesToLogs:
                   datasourceUid: loki-uid
                   tags:
