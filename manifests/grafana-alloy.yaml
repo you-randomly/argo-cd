@@ -193,7 +193,6 @@ spec:
             - run
             - /etc/alloy/config.alloy
             - --server.http.listen-addr=0.0.0.0:12345
-            - --server.log.level=info
           ports:
             - name: alloy
               containerPort: 12345
@@ -206,8 +205,6 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: spec.nodeName
-            - name: ALLOY_LOG_LEVEL
-              value: info
           volumeMounts:
             - name: config
               mountPath: /etc/alloy
