@@ -28,6 +28,11 @@ spec:
         verbosity: basic
       loki:
         endpoint: http://loki.loki.svc.cluster.local:3100/loki/api/v1/push
+      otlp:
+        client:
+          endpoint: tempo.tempo.svc.cluster.local:4317
+          tls:
+            insecure: true
       prometheus:
         endpoint: "0.0.0.0:8889"
 
@@ -36,7 +41,7 @@ spec:
         traces:
           receivers: [otlp]
           processors: [memory_limiter, batch]
-          exporters: [debug]
+          exporters: [otlp, debug]
         metrics:
           receivers: [otlp]
           processors: [memory_limiter, batch]

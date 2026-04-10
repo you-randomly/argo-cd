@@ -43,18 +43,42 @@ spec:
               enabled: true
               url: http://kube-prometheus-stack-prometheus.kube-prometheus-stack.svc.cluster.local:9090/
           additionalDataSources:
+            - name: Prometheus
+              type: prometheus
+              url: http://kube-prometheus-stack-prometheus.kube-prometheus-stack.svc.cluster.local:9090
+              access: proxy
+              isDefault: true
+              jsonData:
+                timeInterval: 15s
             - name: Loki
               type: loki
               url: http://loki.loki.svc.cluster.local:3100
               access: proxy
               isDefault: false
               jsonData:
-                # Wire up trace IDs in logs to Tempo trace links when Tempo is added.
-                # The uid must match the Tempo datasource uid once configured.
                 derivedFields:
                   - name: TraceID
-                    matcherRegex: '"traceid":"(\w+)"'
+                    matcherRegex: '"traceid":"([^"]+)"'
                     url: "$${__value.raw}"
+                    datasourceUid: tempo-uid
+            - name: Tempo
+              type: tempo
+              url: http://tempo.tempo.svc.cluster.local:3100
+              access: proxy
+              isDefault: false
+              uid: tempo-uid
+              jsonData:
+                nodeGraph:
+                  enabled: true
+                lokiSearch:
+                  datasourceUid: loki-uid
+                tracesToMetrics:
+                  datasourceUid: prometheus-uid
+                tracesToLogs:
+                  datasourceUid: loki-uid
+                  tags:
+                    - job
+                    - instance
 
   syncPolicy:
     automated:
