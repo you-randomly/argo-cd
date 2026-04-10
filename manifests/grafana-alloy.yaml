@@ -126,8 +126,8 @@ data:
       endpoint = "http://loki.loki.svc.cluster.local:3100/loki/api/v1/push"
     }
 
-    // OTLP trace receiver (optional - receives traces from apps)
-    otelec.receiver.otlp "default" {
+    // OTLP receiver for app telemetry
+    otelcol.receiver.otlp "default" {
       grpc {
         endpoint = "0.0.0.0:4317"
       }
@@ -135,25 +135,25 @@ data:
         endpoint = "0.0.0.0:4318"
       }
       output {
-        traces  = [otelec.processor.batch.default.input]
-        metrics = [otelec.processor.batch.default.input]
-        logs    = [otelec.processor.batch.default.input]
+        traces  = [otelcol.processor.batch.default.input]
+        metrics = [otelcol.processor.batch.default.input]
+        logs    = [otelcol.processor.batch.default.input]
       }
     }
 
     // Batch processor for efficiency
-    otelec.processor.batch "default" {
+    otelcol.processor.batch "default" {
       send_batch_size = 1024
       timeout = "200ms"
       output {
-        traces  = [otelec.exporter.otlp.tempo.input]
-        metrics = [otelec.exporter.otlp.prometheus.input]
-        logs    = [loki.write.loki.receiver]
+        traces  = [otelcol.exporter.otlp.tempo.input]
+        metrics = [otelcol.exporter.debug.default.input]
+        logs    = [otelcol.exporter.debug.default.input]
       }
     }
 
     // Export traces to Tempo
-    otelec.exporter.otlp "tempo" {
+    otelcol.exporter.otlp "tempo" {
       client {
         endpoint = "tempo.tempo.svc.cluster.local:4317"
         tls {
@@ -162,11 +162,9 @@ data:
       }
     }
 
-    // Export metrics to Prometheus
-    otelec.exporter.otlp "prometheus" {
-      client {
-        endpoint = "http://kube-prometheus-stack-prometheus.kube-prometheus-stack.svc.cluster.local:9090"
-      }
+    // Debug exporter for non-trace OTLP data until a dedicated metrics/logs route is added
+    otelcol.exporter.debug "default" {
+      verbosity = "basic"
     }
 ---
 apiVersion: apps/v1
