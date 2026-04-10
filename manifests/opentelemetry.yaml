@@ -1,0 +1,72 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: opentelemetry
+  labels:
+    pod-security.kubernetes.io/enforce: privileged
+    pod-security.kubernetes.io/enforce-version: latest
+    pod-security.kubernetes.io/audit: privileged
+    pod-security.kubernetes.io/audit-version: latest
+    pod-security.kubernetes.io/warn: privileged
+    pod-security.kubernetes.io/warn-version: latest
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: opentelemetry-operator
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  destination:
+    namespace: opentelemetry
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    chart: opentelemetry-operator
+    repoURL: https://open-telemetry.github.io/opentelemetry-helm-charts
+    targetRevision: 0.75.0
+    helm:
+      valuesObject:
+        manager:
+          collectorImage:
+            repository: otel/opentelemetry-collector-contrib
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+        admissionWebhooks:
+          certManager:
+            enabled: true
+  syncPolicy:
+    automated:
+      allowEmpty: true
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: opentelemetry-resources
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  destination:
+    namespace: opentelemetry
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    repoURL: https://github.com/you-randomly/argo-cd.git
+    targetRevision: HEAD
+    path: manifests/opentelemetry
+  syncPolicy:
+    automated:
+      allowEmpty: true
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
+      - ApplyOutOfSyncOnly=true
