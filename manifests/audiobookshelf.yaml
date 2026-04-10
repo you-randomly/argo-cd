@@ -36,6 +36,8 @@ spec:
     metadata:
       labels:
         app: audiobookshelf
+      annotations:
+        instrumentation.opentelemetry.io/inject-nodejs: "opentelemetry/default"
     spec:
       # initContainers:
         # Init containers are exactly like regular containers, except:
