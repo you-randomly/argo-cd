@@ -9,7 +9,8 @@
     "cilium-cli@latest",
     "lazygit@latest",
     "go@latest",
-    "kubernetes-helm@latest"
+    "kubernetes-helm@latest",
+    "talosctl@latest"
   ],
   "shell": {
     "init_hook": [
