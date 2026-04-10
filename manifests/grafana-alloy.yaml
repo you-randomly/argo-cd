@@ -123,7 +123,9 @@ data:
 
     // Write logs to Loki
     loki.write "loki" {
-      endpoint = "http://loki.loki.svc.cluster.local:3100/loki/api/v1/push"
+      endpoint {
+        url = "http://loki.loki.svc.cluster.local:3100/loki/api/v1/push"
+      }
     }
 
     // OTLP receiver for app telemetry
