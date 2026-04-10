@@ -27,7 +27,10 @@ spec:
     repoURL: https://open-telemetry.github.io/opentelemetry-helm-charts
     targetRevision: 0.75.0
     helm:
+      skipSchemaValidation: true
       valuesObject:
+        crds:
+          create: true
         manager:
           collectorImage:
             repository: otel/opentelemetry-collector-contrib
@@ -43,6 +46,12 @@ spec:
       allowEmpty: true
       prune: true
       selfHeal: true
+    retry:
+      limit: 10
+      backoff:
+        duration: 15s
+        factor: 2
+        maxDuration: 5m
     syncOptions:
       - ServerSideApply=true
 ---
@@ -67,6 +76,13 @@ spec:
       allowEmpty: true
       prune: true
       selfHeal: true
+    retry:
+      limit: 20
+      backoff:
+        duration: 15s
+        factor: 2
+        maxDuration: 10m
     syncOptions:
       - ServerSideApply=true
       - ApplyOutOfSyncOnly=true
+      - SkipDryRunOnMissingResource=true
