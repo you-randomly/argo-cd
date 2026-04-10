@@ -26,8 +26,6 @@ spec:
     exporters:
       debug:
         verbosity: basic
-      loki:
-        endpoint: http://loki.loki.svc.cluster.local:3100/loki/api/v1/push
       otlp:
         client:
           endpoint: tempo.tempo.svc.cluster.local:4317
@@ -35,6 +33,8 @@ spec:
             insecure: true
       prometheus:
         endpoint: "0.0.0.0:8889"
+      logging:
+        loglevel: info
 
     service:
       pipelines:
@@ -49,7 +49,7 @@ spec:
         logs:
           receivers: [otlp]
           processors: [memory_limiter, batch]
-          exporters: [loki]
+          exporters: [logging]
 ---
 apiVersion: opentelemetry.io/v1alpha1
 kind: Instrumentation
