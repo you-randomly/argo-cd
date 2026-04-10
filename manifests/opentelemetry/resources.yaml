@@ -32,8 +32,6 @@ spec:
           insecure: true
       prometheus:
         endpoint: "0.0.0.0:8889"
-      logging:
-        loglevel: info
 
     service:
       pipelines:
@@ -48,7 +46,7 @@ spec:
         logs:
           receivers: [otlp]
           processors: [memory_limiter, batch]
-          exporters: [logging]
+          exporters: [debug]
 ---
 apiVersion: opentelemetry.io/v1alpha1
 kind: Instrumentation
