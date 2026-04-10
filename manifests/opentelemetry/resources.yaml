@@ -27,10 +27,9 @@ spec:
       debug:
         verbosity: basic
       otlp:
-        client:
-          endpoint: tempo.tempo.svc.cluster.local:4317
-          tls:
-            insecure: true
+        endpoint: tempo.tempo.svc.cluster.local:4317
+        tls:
+          insecure: true
       prometheus:
         endpoint: "0.0.0.0:8889"
       logging:
