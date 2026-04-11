@@ -73,17 +73,6 @@ spec:
                   tags:
                     - job
                     - instance
-                tracesToProfiles:
-                  datasourceUid: pyroscope-uid
-                  profileTypeId: process_cpu:cpu:nanoseconds:cpu:nanoseconds
-                  customQuery: true
-                  query: '{service_name="${__span.tags["service.name"]}"}'
-            - name: Pyroscope
-              type: grafana-pyroscope-datasource
-              uid: pyroscope-uid
-              url: http://pyroscope.pyroscope.svc.cluster.local:4040
-              access: proxy
-              isDefault: false
 
   syncPolicy:
     automated:
