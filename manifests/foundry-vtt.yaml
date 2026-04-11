@@ -2,8 +2,6 @@ kind: Namespace
 apiVersion: v1
 metadata:
   name: foundry-vtt
-  annotations:
-    instrumentation.opentelemetry.io/inject-nodejs: "opentelemetry/default"
 ---
 kind: ExternalSecret
 apiVersion: external-secrets.io/v1
@@ -71,8 +69,6 @@ spec:
     metadata:
       labels:
         app: foundry-vtt
-      annotations:
-        instrumentation.opentelemetry.io/inject-nodejs: "opentelemetry/default"
     spec:
       initContainers:
       - name: fix-permissions
