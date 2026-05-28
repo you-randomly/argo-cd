@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
       - name: app
-        image: yourandomly/abs-bookclub:v1.3.0
+        image: ghcr.io/you-randomly/bookclub:latest
         imagePullPolicy: Always
         ports:
           - containerPort: 5000
