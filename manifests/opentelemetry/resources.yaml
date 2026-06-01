@@ -26,19 +26,11 @@ spec:
     exporters:
       debug:
         verbosity: basic
-      otlp:
-        endpoint: tempo.tempo.svc.cluster.local:4317
-        tls:
-          insecure: true
       prometheus:
         endpoint: "0.0.0.0:8889"
 
     service:
       pipelines:
-        traces:
-          receivers: [otlp]
-          processors: [memory_limiter, batch]
-          exporters: [otlp, debug]
         metrics:
           receivers: [otlp]
           processors: [memory_limiter, batch]
