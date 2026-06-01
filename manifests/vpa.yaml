@@ -1,0 +1,38 @@
+# ArgoCD Application for Vertical Pod Autoscaler (VPA)
+#
+# Configured in Recommendation-Only mode by disabling the Updater and Admission Controller.
+# This compiles CPU and memory recommendations without modifying live pods or causing downtime.
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: vpa
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  
+  source:
+    repoURL: https://charts.fairwinds.com/stable
+    chart: vpa
+    targetRevision: 4.11.0
+    helm:
+      values: |
+        recommender:
+          enabled: true
+        updater:
+          enabled: false
+        admissionController:
+          enabled: false
+    
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kube-system # Install in kube-system as it is a core system component
+    
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
