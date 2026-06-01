@@ -28,6 +28,13 @@ spec:
       valuesObject:
         prometheus:
           prometheusSpec:
+            resources:
+              limits:
+                cpu: 1000m
+                memory: 1536Mi
+              requests:
+                cpu: 150m
+                memory: 1024Mi
             storageSpec:
               volumeClaimTemplate:
                 spec:
@@ -38,6 +45,13 @@ spec:
                     requests:
                       storage: 10Gi
         grafana:
+          resources:
+            limits:
+              cpu: 500m
+              memory: 256Mi
+            requests:
+              cpu: 50m
+              memory: 140Mi
           sidecar:
             datasources:
               enabled: true
