@@ -4,12 +4,58 @@ metadata:
   name: audiobookshelf
 ---
 apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: audiobookshelf-audiobooks
+spec:
+  capacity:
+    storage: 1Ti
+  accessModes:
+    - ReadWriteMany
+  mountOptions:
+    - nfsvers=4.2
+    - rsize=1048576
+    - wsize=1048576
+    - hard
+    - timeo=600
+    - retrans=2
+    - noatime
+    - nodiratime
+    - async
+  nfs:
+    server: "192.168.200.184"
+    path: "/volume1/media/audiobooks"
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  claimRef:
+    name: audiobookshelf-audiobooks
+    namespace: audiobookshelf
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: audiobookshelf-audiobooks
+  namespace: audiobookshelf
+  labels:
+    app: audiobookshelf
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Ti
+  storageClassName: ""
+  volumeName: audiobookshelf-audiobooks
+---
+apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: audiobookshelf
   namespace: audiobookshelf
   labels:
     app: audiobookshelf
+  annotations:
+    volume.longhorn.io/replica-count: "2"
 spec:
   storageClassName: longhorn-talos
   accessModes:
@@ -39,6 +85,19 @@ spec:
       annotations:
         instrumentation.opentelemetry.io/inject-nodejs: "opentelemetry/default"
     spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - foundry-vtt
+                        - audiobookshelf
+                topologyKey: kubernetes.io/hostname
       # initContainers:
         # Init containers are exactly like regular containers, except:
           # - Init containers always run to completion.
@@ -48,11 +107,11 @@ spec:
         image:  ghcr.io/advplyr/audiobookshelf:2.27.0
         resources:
           requests:
-            cpu: 500m
-            memory: 384Mi
+            cpu: 200m
+            memory: 256Mi
           limits:
-            cpu: 1500m   # burst headroom for active uploads/downloads
-            memory: 512Mi
+            cpu: 1500m
+            memory: 1536Mi
         ports:
         - containerPort:  80
           name: audiobookshelf
@@ -73,9 +132,8 @@ spec:
             server: "192.168.200.184"
             path: "/volume1/Nomad/audiobookshelf-meta"
         - name: audiobooks
-          nfs:
-            server: "192.168.200.184"
-            path: "/volume1/media/audiobooks"
+          persistentVolumeClaim:
+            claimName: audiobookshelf-audiobooks
         - name: comics
           nfs:
             server: "192.168.200.184"
