@@ -13,7 +13,7 @@ spec:
   accessModes:
     - ReadWriteMany
   mountOptions:
-    - nfsvers=4.2
+    - nfsvers=4.1
     - rsize=1048576
     - wsize=1048576
     - hard
