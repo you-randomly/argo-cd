@@ -48,8 +48,11 @@ spec:
         image:  ghcr.io/advplyr/audiobookshelf:2.27.0
         resources:
           requests:
-            cpu: 100m
-            memory: 100Mi
+            cpu: 500m
+            memory: 384Mi
+          limits:
+            cpu: 1500m   # burst headroom for active uploads/downloads
+            memory: 512Mi
         ports:
         - containerPort:  80
           name: audiobookshelf
@@ -115,10 +118,31 @@ spec:
     - name: cilium-gateway-external
       namespace: default
   rules:
-    - backendRefs:
-      - kind: Service
-        name: audiobookshelf
-        port: 80
+    # Download/upload paths — long timeout to support large audiobook/podcast file transfers
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api/items
+        - path:
+            type: PathPrefix
+            value: /api/podcasts
+        - path:
+            type: PathPrefix
+            value: /api/upload
+      timeouts:
+        request: 0s            # no ceiling on slow-client upload body transmission
+        backendRequest: 600s   # 10 minutes: covers even large audiobook uploads/downloads on slow links
+      backendRefs:
+        - kind: Service
+          name: audiobookshelf
+          port: 80
+    # All other traffic — standard timeout
+    - timeouts:
+        backendRequest: 60s
+      backendRefs:
+        - kind: Service
+          name: audiobookshelf
+          port: 80
 ---
 apiVersion: externaldns.k8s.io/v1alpha1
 kind: DNSEndpoint

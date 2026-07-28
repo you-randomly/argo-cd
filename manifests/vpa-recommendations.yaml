@@ -132,3 +132,18 @@ spec:
     name: foundry-unlit
   updatePolicy:
     updateMode: "Off"
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: audiobookshelf
+  namespace: audiobookshelf
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
+spec:
+  targetRef:
+    apiVersion: "apps/v1"
+    kind: Deployment
+    name: audiobookshelf
+  updatePolicy:
+    updateMode: "Off"
