@@ -95,7 +95,7 @@ spec:
                     - key: app
                       operator: In
                       values:
-                        - foundryvtt
+                        - foundry-vtt
                         - audiobookshelf
                 topologyKey: kubernetes.io/hostname
       # initContainers:
