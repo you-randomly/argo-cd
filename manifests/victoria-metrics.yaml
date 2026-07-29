@@ -26,6 +26,7 @@ spec:
     targetRevision: 0.86.0
     helm:
       valuesObject:
+        fullnameOverride: vm
         vmsingle:
           spec:
             storage:
@@ -73,5 +74,5 @@ spec:
     namespace: default
   rules:
   - backendRefs:
-         - name: victoria-metrics-grafana
+         - name: vm-grafana
            port: 80

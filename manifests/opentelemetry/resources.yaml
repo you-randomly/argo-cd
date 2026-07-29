@@ -60,9 +60,9 @@ spec:
       debug:
         verbosity: basic
       otlphttp/victoriametrics:
-        endpoint: "http://vmsingle-victoria-metrics-victoria-metrics-k8s-stack.victoria-metrics.svc.cluster.local:8429/opentelemetry"
+        endpoint: "http://vmsingle-vm.victoria-metrics.svc.cluster.local:8429/opentelemetry"
       otlphttp/victorialogs:
-        endpoint: "http://vlsingle-victoria-metrics-victoria-metrics-k8s-stack.victoria-metrics.svc.cluster.local:9428/opentelemetry"
+        endpoint: "http://vlsingle-vm.victoria-metrics.svc.cluster.local:9428/opentelemetry"
 
     service:
       pipelines:
