@@ -27,6 +27,8 @@ spec:
     helm:
       valuesObject:
         fullnameOverride: vm
+        defaultDashboards:
+          useOwnerReferences: false
         vmsingle:
           spec:
             storage:
