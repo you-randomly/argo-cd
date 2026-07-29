@@ -62,7 +62,7 @@ spec:
       otlphttp/victoriametrics:
         endpoint: "http://vmsingle-vm.victoria-metrics.svc.cluster.local:8429/opentelemetry"
       otlphttp/victorialogs:
-        endpoint: "http://vlsingle-vm.victoria-metrics.svc.cluster.local:9428/opentelemetry"
+        endpoint: "http://vlsingle-vm.victoria-metrics.svc.cluster.local:9428/insert/opentelemetry"
 
     service:
       pipelines:
@@ -101,3 +101,28 @@ spec:
   java: {}
   dotnet: {}
   go: {}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: otel-collector-k8sattributes
+rules:
+- apiGroups: [""]
+  resources: ["pods", "namespaces", "nodes"]
+  verbs: ["get", "watch", "list"]
+- apiGroups: ["apps"]
+  resources: ["replicasets"]
+  verbs: ["get", "watch", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: otel-collector-k8sattributes
+subjects:
+- kind: ServiceAccount
+  name: otel-collector
+  namespace: opentelemetry
+roleRef:
+  kind: ClusterRole
+  name: otel-collector-k8sattributes
+  apiGroup: rbac.authorization.k8s.io

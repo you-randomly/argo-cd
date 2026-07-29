@@ -50,6 +50,9 @@ spec:
               storageClassName: longhorn-talos
         grafana:
           enabled: true
+          plugins:
+            - victoriametrics-metrics-datasource
+            - victoriametrics-logs-datasource
           sidecar:
             dashboards:
               enabled: true
