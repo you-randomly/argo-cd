@@ -74,5 +74,5 @@ spec:
     namespace: default
   rules:
   - backendRefs:
-         - name: vm-grafana
+         - name: victoria-metrics-grafana
            port: 80
