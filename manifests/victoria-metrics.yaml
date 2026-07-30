@@ -279,7 +279,7 @@ data:
             "dedupStrategy": "none",
             "enableInfiniteScrolling": false,
             "enableLogDetails": true,
-            "prettifyLogMessage": false,
+            "prettifyLogMessage": true,
             "showCommonLabels": false,
             "showLabels": false,
             "showTime": true,
