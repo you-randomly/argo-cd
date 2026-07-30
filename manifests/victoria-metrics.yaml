@@ -149,7 +149,7 @@ data:
           }
         ]
       },
-      "description": "Dashboard to explore VictoriaLogs by namespace, app, and container",
+      "description": "Dashboard to explore VictoriaLogs by namespace, pod, and container",
       "editable": true,
       "fiscalYearStartMonth": 0,
       "graphTooltip": 0,
@@ -165,7 +165,7 @@ data:
           "title": "View In Explore",
           "tooltip": "",
           "type": "link",
-          "url": "/explore?orgId=1&left={\"datasource\":\"VictoriaLogs\",\"queries\":[{\"expr\":\"_stream: {kubernetes.container_name=~\\\"$container\\\"} kubernetes.pod_labels.app.kubernetes.io/name:=\\\"$app\\\" $query\"}]}"
+          "url": "/explore?orgId=1&left={\"datasource\":\"VictoriaLogs\",\"queries\":[{\"expr\":\"_stream: {k8s.container.name=~\\\"$container\\\", k8s.namespace.name=\\\"$namespace\\\", k8s.pod.name=~\\\"$pod\\\"} $query\"}]}"
         },
         {
           "asDropdown": false,
@@ -230,7 +230,7 @@ data:
             {
               "datasource": { "type": "victoriametrics-logs-datasource", "uid": "VictoriaLogs" },
               "editorMode": "code",
-              "expr": "_stream: {kubernetes.container_name=~\"$container\", kubernetes.pod_namespace=\"$namespace\"} kubernetes.pod_labels.app.kubernetes.io/name:=\"$app\" $query | stats count()",
+              "expr": "_stream: {k8s.container.name=~\"$container\", k8s.namespace.name=\"$namespace\", k8s.pod.name=~\"$pod\"} $query | stats count()",
               "legendFormat": "${namespace} ${container}",
               "queryType": "statsRange",
               "refId": "A"
@@ -262,7 +262,7 @@ data:
             {
               "datasource": { "type": "victoriametrics-logs-datasource", "uid": "VictoriaLogs" },
               "editorMode": "code",
-              "expr": "_stream: {kubernetes.container_name=~\"$container\", kubernetes.pod_namespace=\"$namespace\"} kubernetes.pod_labels.app.kubernetes.io/name:=\"$app\" $query | stats by (\"$count_by\") count() c | sort by (c desc) | limit 50",
+              "expr": "_stream: {k8s.container.name=~\"$container\", k8s.namespace.name=\"$namespace\", k8s.pod.name=~\"$pod\"} $query | stats by (\"$count_by\") count() c | sort by (c desc) | limit 50",
               "legendFormat": "{{$count_by}}",
               "queryType": "stats",
               "refId": "A"
@@ -290,7 +290,7 @@ data:
             {
               "datasource": { "type": "victoriametrics-logs-datasource", "uid": "VictoriaLogs" },
               "editorMode": "code",
-              "expr": "_stream: {kubernetes.container_name=~\"$container\", kubernetes.pod_namespace=\"$namespace\"} kubernetes.pod_labels.app.kubernetes.io/name:=\"$app\" $query | sort desc | limit $limit",
+              "expr": "_stream: {k8s.container.name=~\"$container\", k8s.namespace.name=\"$namespace\", k8s.pod.name=~\"$pod\"} $query | sort desc | limit $limit",
               "queryType": "range",
               "refId": "A"
             }
@@ -311,7 +311,7 @@ data:
             "name": "namespace",
             "options": [],
             "query": {
-              "field": "kubernetes.pod_namespace",
+              "field": "k8s.namespace.name",
               "limit": 100,
               "query": "",
               "refId": "VictoriaLogsVariableQueryEditor-VariableQuery",
@@ -325,14 +325,14 @@ data:
           {
             "current": {},
             "datasource": { "type": "victoriametrics-logs-datasource", "uid": "VictoriaLogs" },
-            "definition": "{kubernetes.pod_namespace=\"$namespace\"}",
-            "includeAll": false,
-            "name": "app",
+            "definition": "{k8s.namespace.name=\"$namespace\"}",
+            "includeAll": true,
+            "name": "pod",
             "options": [],
             "query": {
-              "field": "kubernetes.pod_labels.app.kubernetes.io/name",
+              "field": "k8s.pod.name",
               "limit": 0,
-              "query": "{kubernetes.pod_namespace=\"$namespace\"}",
+              "query": "{k8s.namespace.name=\"$namespace\"}",
               "refId": "VictoriaLogsVariableQueryEditor-VariableQuery",
               "type": "fieldValue"
             },
@@ -344,14 +344,14 @@ data:
           {
             "current": {},
             "datasource": { "type": "victoriametrics-logs-datasource", "uid": "VictoriaLogs" },
-            "definition": "{kubernetes.pod_namespace=\"$namespace\"} kubernetes.pod_labels.app.kubernetes.io/name:=\"$app\"",
-            "includeAll": false,
+            "definition": "{k8s.namespace.name=\"$namespace\", k8s.pod.name=~\"$pod\"}",
+            "includeAll": true,
             "name": "container",
             "options": [],
             "query": {
-              "field": "kubernetes.container_name",
+              "field": "k8s.container.name",
               "limit": 0,
-              "query": "{kubernetes.pod_namespace=\"$namespace\"} kubernetes.pod_labels.app.kubernetes.io/name:=\"$app\"",
+              "query": "{k8s.namespace.name=\"$namespace\", k8s.pod.name=~\"$pod\"}",
               "refId": "VictoriaLogsVariableQueryEditor-VariableQuery",
               "type": "fieldValue"
             },
@@ -363,14 +363,14 @@ data:
           {
             "current": {},
             "datasource": { "type": "victoriametrics-logs-datasource", "uid": "VictoriaLogs" },
-            "definition": "{kubernetes.pod_namespace=\"$namespace\"} kubernetes.pod_labels.app.kubernetes.io/name:=\"$app\"",
+            "definition": "{k8s.namespace.name=\"$namespace\", k8s.pod.name=~\"$pod\"}",
             "includeAll": false,
             "name": "count_by",
             "options": [],
             "query": {
-              "field": "kubernetes.container_name",
+              "field": "k8s.container.name",
               "limit": 25,
-              "query": "{kubernetes.pod_namespace=\"$namespace\"} kubernetes.pod_labels.app.kubernetes.io/name:=\"$app\"",
+              "query": "{k8s.namespace.name=\"$namespace\", k8s.pod.name=~\"$pod\"}",
               "refId": "VictoriaLogsVariableQueryEditor-VariableQuery",
               "type": "fieldName"
             },
@@ -408,5 +408,5 @@ data:
       "timezone": "browser",
       "title": "VictoriaLogs Explorer",
       "uid": "victorialogs-explorer",
-      "version": 1
+      "version": 2
     }
