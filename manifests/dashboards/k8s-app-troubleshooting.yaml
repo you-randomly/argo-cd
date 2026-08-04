@@ -4,12 +4,17 @@ metadata:
   name: k8s-app-troubleshooting-dashboard
   namespace: victoria-metrics
   labels:
-    grafana_dashboard: "1"
+    grafana_dashboard: '1'
 data:
   k8s-app-troubleshooting.json: |-
     {
       "title": "K8s App Troubleshooting",
-      "tags": ["kubernetes", "troubleshooting", "cilium", "traces"],
+      "tags": [
+        "kubernetes",
+        "troubleshooting",
+        "cilium",
+        "traces"
+      ],
       "timezone": "browser",
       "templating": {
         "list": [
@@ -26,6 +31,22 @@ data:
             "datasource": "VictoriaMetrics",
             "query": "label_values(kube_pod_info{namespace=\"$namespace\"}, pod)",
             "refresh": 1
+          },
+          {
+            "name": "trace_id",
+            "type": "textbox",
+            "hide": 2,
+            "current": {
+              "value": "",
+              "text": ""
+            },
+            "options": [
+              {
+                "value": "",
+                "text": ""
+              }
+            ],
+            "query": ""
           }
         ]
       },
@@ -40,7 +61,12 @@ data:
               "legendFormat": "{{pod}}"
             }
           ],
-          "gridPos": { "h": 8, "w": 8, "x": 0, "y": 0 }
+          "gridPos": {
+            "h": 8,
+            "w": 8,
+            "x": 0,
+            "y": 0
+          }
         },
         {
           "title": "Memory Usage",
@@ -52,7 +78,12 @@ data:
               "legendFormat": "{{pod}}"
             }
           ],
-          "gridPos": { "h": 8, "w": 8, "x": 8, "y": 0 }
+          "gridPos": {
+            "h": 8,
+            "w": 8,
+            "x": 8,
+            "y": 0
+          }
         },
         {
           "title": "HTTP Status Codes (Hubble)",
@@ -64,18 +95,52 @@ data:
               "legendFormat": "HTTP {{status}}"
             }
           ],
-          "gridPos": { "h": 8, "w": 8, "x": 16, "y": 0 }
+          "gridPos": {
+            "h": 8,
+            "w": 8,
+            "x": 16,
+            "y": 0
+          }
         },
         {
           "title": "Traces (Tempo)",
-          "type": "traces",
+          "type": "table",
           "datasource": "Tempo",
           "targets": [
             {
-              "query": "{.k8s.pod.name=\"$pod\"}"
+              "query": "{.k8s.pod.name=\"$pod\"}",
+              "queryType": "traceql"
             }
           ],
-          "gridPos": { "h": 10, "w": 12, "x": 0, "y": 8 }
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 8
+          },
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Trace ID"
+                },
+                "properties": [
+                  {
+                    "id": "links",
+                    "value": [
+                      {
+                        "targetBlank": false,
+                        "title": "View Trace",
+                        "url": "?var-namespace=$namespace&var-pod=$pod&var-trace_id=${__value.raw}"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
         },
         {
           "title": "Application Logs (VictoriaLogs)",
@@ -86,7 +151,12 @@ data:
               "expr": "_stream:{k8s.namespace.name=\"$namespace\", k8s.pod.name=~\"$pod.*\"}"
             }
           ],
-          "gridPos": { "h": 10, "w": 12, "x": 12, "y": 8 }
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 16
+          }
         },
         {
           "title": "Network Flows by Verdict (Hubble)",
@@ -99,7 +169,12 @@ data:
               "legendFormat": "{{flow.verdict}}"
             }
           ],
-          "gridPos": { "h": 8, "w": 24, "x": 0, "y": 18 }
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 34
+          }
         },
         {
           "title": "Raw Network Flow Logs (Hubble)",
@@ -111,10 +186,33 @@ data:
               "queryType": "range"
             }
           ],
-          "gridPos": { "h": 12, "w": 24, "x": 0, "y": 26 },
+          "gridPos": {
+            "h": 12,
+            "w": 24,
+            "x": 0,
+            "y": 42
+          },
           "options": {
             "showTime": true,
             "showLabels": false
+          }
+        },
+        {
+          "title": "Selected Trace ($trace_id)",
+          "type": "traces",
+          "datasource": "Tempo",
+          "targets": [
+            {
+              "queryType": "traceql",
+              "query": "$trace_id"
+            }
+          ],
+          "transparent": true,
+          "gridPos": {
+            "h": 10,
+            "w": 24,
+            "x": 0,
+            "y": 24
           }
         }
       ]
