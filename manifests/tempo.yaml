@@ -1,0 +1,40 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: tempo
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  destination:
+    namespace: observability
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    chart: tempo
+    repoURL: https://grafana.github.io/helm-charts
+    targetRevision: 1.10.1
+    helm:
+      valuesObject:
+        traces:
+          otlp:
+            grpc:
+              enabled: true
+            http:
+              enabled: true
+        storage:
+          trace:
+            backend: local
+            local:
+              path: /var/tempo/traces
+        persistence:
+          enabled: true
+          size: 10Gi
+  syncPolicy:
+    automated:
+      allowEmpty: true
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
