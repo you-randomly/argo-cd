@@ -72,7 +72,7 @@ data:
           "datasource": "Tempo",
           "targets": [
             {
-              "query": "{.service.name=\"*\" && .k8s.pod.name=\"$pod\"}"
+              "query": "{.k8s.pod.name=\"$pod\"}"
             }
           ],
           "gridPos": { "h": 10, "w": 12, "x": 0, "y": 8 }
