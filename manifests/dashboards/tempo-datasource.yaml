@@ -5,7 +5,7 @@ metadata:
   namespace: victoria-metrics
   labels:
     grafana_datasource: "1"
-spec:
+data:
   tempo-datasource.yaml: |-
     apiVersion: 1
     datasources:

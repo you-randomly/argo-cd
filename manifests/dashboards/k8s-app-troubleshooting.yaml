@@ -5,7 +5,7 @@ metadata:
   namespace: victoria-metrics
   labels:
     grafana_dashboard: "1"
-spec:
+data:
   k8s-app-troubleshooting.json: |-
     {
       "title": "K8s App Troubleshooting",
