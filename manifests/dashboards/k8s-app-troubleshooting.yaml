@@ -94,7 +94,7 @@ data:
           "datasource": "VictoriaLogs",
           "targets": [
             {
-              "expr": "_stream:{k8s.container.name=\"cilium-agent\"} AND \"flow\" AND \"$namespace\" AND \"$pod\" | unpack_json | stats by (flow.verdict) count()",
+              "expr": "_stream:{k8s.container.name=\"cilium-agent\"} AND \"flow\" | unpack_json | flow.verdict:* | (flow.source.namespace:\"$namespace\" OR flow.destination.namespace:\"$namespace\") AND (flow.source.pod_name:~\"$pod.*\" OR flow.destination.pod_name:~\"$pod.*\") | stats by (flow.verdict) count()",
               "queryType": "statsRange",
               "legendFormat": "{{flow.verdict}}"
             }
@@ -107,7 +107,7 @@ data:
           "datasource": "VictoriaLogs",
           "targets": [
             {
-              "expr": "_stream:{k8s.container.name=\"cilium-agent\"} AND \"flow\" AND \"$namespace\" AND \"$pod\" | unpack_json",
+              "expr": "_stream:{k8s.container.name=\"cilium-agent\"} AND \"flow\" | unpack_json | flow.verdict:* | (flow.source.namespace:\"$namespace\" OR flow.destination.namespace:\"$namespace\") AND (flow.source.pod_name:~\"$pod.*\" OR flow.destination.pod_name:~\"$pod.*\") | format \"[<flow.verdict>] <flow.source.namespace>/<flow.source.pod_name> -> <flow.destination.namespace>/<flow.destination.pod_name> (<flow.Summary>)\"",
               "queryType": "range"
             }
           ],
