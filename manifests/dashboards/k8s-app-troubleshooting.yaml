@@ -87,6 +87,35 @@ data:
             }
           ],
           "gridPos": { "h": 10, "w": 12, "x": 12, "y": 8 }
+        },
+        {
+          "title": "Network Flows by Verdict (Hubble)",
+          "type": "timeseries",
+          "datasource": "VictoriaLogs",
+          "targets": [
+            {
+              "expr": "_stream:{k8s.container.name=\"cilium-agent\"} AND \"flow\" AND \"$namespace\" AND \"$pod\" | unpack_json | stats by (flow.verdict) count()",
+              "queryType": "statsRange",
+              "legendFormat": "{{flow.verdict}}"
+            }
+          ],
+          "gridPos": { "h": 8, "w": 24, "x": 0, "y": 18 }
+        },
+        {
+          "title": "Raw Network Flow Logs (Hubble)",
+          "type": "logs",
+          "datasource": "VictoriaLogs",
+          "targets": [
+            {
+              "expr": "_stream:{k8s.container.name=\"cilium-agent\"} AND \"flow\" AND \"$namespace\" AND \"$pod\" | unpack_json",
+              "queryType": "range"
+            }
+          ],
+          "gridPos": { "h": 12, "w": 24, "x": 0, "y": 26 },
+          "options": {
+            "showTime": true,
+            "showLabels": false
+          }
         }
       ]
     }
