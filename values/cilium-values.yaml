@@ -72,7 +72,7 @@ hubble:
       - flow
       - port-distribution
       - icmp
-      - http
+      - http:sourceContext=pod;destinationContext=pod
     serviceMonitor:
       enabled: true
   relay:
