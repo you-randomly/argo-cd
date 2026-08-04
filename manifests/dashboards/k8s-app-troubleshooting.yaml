@@ -123,8 +123,8 @@ data:
             "overrides": [
               {
                 "matcher": {
-                  "id": "byName",
-                  "options": "Trace ID"
+                  "id": "byRegexp",
+                  "options": "/.*[Tt]race.*[Ii][Dd].*/"
                 },
                 "properties": [
                   {
@@ -133,7 +133,7 @@ data:
                       {
                         "targetBlank": false,
                         "title": "View Trace",
-                        "url": "?var-namespace=$namespace&var-pod=$pod&var-trace_id=${__value.raw}"
+                        "url": "${__url.path}?var-namespace=$namespace&var-pod=$pod&var-trace_id=${__value.raw}"
                       }
                     ]
                   }
